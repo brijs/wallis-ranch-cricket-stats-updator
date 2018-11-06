@@ -78,7 +78,7 @@ func getWrapAPIKey() (string) {
 }
 
 func GetWRPlayers() ([]PlayerProfile){
-    WRPlayersURL := fmt.Sprintf("https://wrapapi.com/use/brij/tests/WRCricPlayers/0.0.4?wrapAPIKey=%s", getWrapAPIKey())
+    WRPlayersURL := fmt.Sprintf("https://wrapapi.com/use/brij/tests/WRCricPlayers/latest?wrapAPIKey=%s", getWrapAPIKey())
     r, err := myClient.Get(WRPlayersURL)
     defer r.Body.Close()
     if err != nil {
