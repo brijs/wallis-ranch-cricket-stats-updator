@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -66,13 +67,19 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
+func getProfileURL(p PlayerProfile) string {
+	// https://cricheroes.in/player-profile/1140525/Brijesh-Shetty?
+	return fmt.Sprintf("https://cricheroes.in/player-profile/%d/%s?", p.ID, strings.Replace(p.Name, " ", "-", -1))
+}
+
 func PersistBattingStats(profiles []PlayerProfile) {
 	rangeData := "Batting!A1:Z1000" // 1000 rows
 	values := [][]interface{}{
-		{"Name", "Matches", "Innings", "Runs", "Not Outs", "Highest",
+		{"", "Name", "Matches", "Innings", "Runs", "Not Outs", "Highest",
 			"Avg", "SR", "4s", "6s", "0s", "30s", "60s", "100s"}}
 	for _, p := range profiles {
-		values = append(values, []interface{}{p.Name, p.Batting.Matches, p.Batting.Innings, p.Batting.Runs, p.Batting.NotOuts, p.Batting.Highest,
+		values = append(values, []interface{}{fmt.Sprintf("=IMAGE(\"%s\")", p.PhotoURL),
+			fmt.Sprintf("=HYPERLINK(\"%s\",\"%s\")", getProfileURL(p), p.Name), p.Batting.Matches, p.Batting.Innings, p.Batting.Runs, p.Batting.NotOuts, p.Batting.Highest,
 			p.Batting.Average, p.Batting.StrikeRate, p.Batting.Fours, p.Batting.Sixes, p.Batting.Ducks, p.Batting.Thirties, p.Batting.Fifties, p.Batting.Hundreds})
 	}
 
@@ -83,10 +90,11 @@ func PersistBattingStats(profiles []PlayerProfile) {
 func PersistBowlingStats(profiles []PlayerProfile) {
 	rangeData := "Bowling!A1:Z1000" // 1000 rows
 	values := [][]interface{}{
-		{"Name", "Matches", "Innings", "Overs", "Maidens", "Runs",
+		{"", "Name", "Matches", "Innings", "Overs", "Maidens", "Runs",
 			"Wickets", "Economy", "SR", "Avg", "Wides", "NoBalls", "Dots", "Best"}}
 	for _, p := range profiles {
-		values = append(values, []interface{}{p.Name, p.Bowling.Matches, p.Bowling.Innings, p.Bowling.Overs, p.Bowling.Maidens, p.Bowling.Runs,
+		values = append(values, []interface{}{fmt.Sprintf("=IMAGE(\"%s\")", p.PhotoURL),
+			fmt.Sprintf("=HYPERLINK(\"%s\",\"%s\")", getProfileURL(p), p.Name), p.Bowling.Matches, p.Bowling.Innings, p.Bowling.Overs, p.Bowling.Maidens, p.Bowling.Runs,
 			p.Bowling.Wickets, p.Bowling.Economy, p.Bowling.StrikeRate, p.Bowling.Average, p.Bowling.Wides, p.Bowling.NoBalls, p.Bowling.DotBalls, p.Bowling.BestBowling})
 	}
 
@@ -97,9 +105,10 @@ func PersistBowlingStats(profiles []PlayerProfile) {
 func PersistFieldingStats(profiles []PlayerProfile) {
 	rangeData := "Fielding!A1:Z1000" // 1000 rows
 	values := [][]interface{}{
-		{"Name", "Matches", "Catches", "Ct Behind", "Stumpings", "RunOuts", "AssistedRunOuts"}}
+		{"", "Name", "Matches", "Catches", "Ct Behind", "Stumpings", "RunOuts", "AssistedRunOuts"}}
 	for _, p := range profiles {
-		values = append(values, []interface{}{p.Name, p.Fielding.Matches, p.Fielding.Catches, p.Fielding.CaughtBehind, p.Fielding.Stumpings,
+		values = append(values, []interface{}{fmt.Sprintf("=IMAGE(\"%s\")", p.PhotoURL),
+			fmt.Sprintf("=HYPERLINK(\"%s\",\"%s\")", getProfileURL(p), p.Name), p.Fielding.Matches, p.Fielding.Catches, p.Fielding.CaughtBehind, p.Fielding.Stumpings,
 			p.Fielding.RunOuts, p.Fielding.AssistedRunOuts})
 	}
 
