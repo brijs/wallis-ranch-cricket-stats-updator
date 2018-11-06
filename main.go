@@ -50,5 +50,6 @@ func main() {
 	// Update sheets
 	PersistBattingStats(outputProfiles)
 	PersistBowlingStats(outputProfiles)
+	PersistFieldingStats(outputProfiles)
 	log.Printf("Main: Done")
 }

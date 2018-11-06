@@ -19,12 +19,14 @@ type PlayerProfile struct {
 	PhotoURL string
 	Batting  BattingStat
 	Bowling  BowlingStat
+	Fielding FieldingStat
 }
 
 type ApiResponseData struct {
-	Players []PlayerProfile
-	Batting []BattingStat
-	Bowling []BowlingStat
+	Players  []PlayerProfile
+	Batting  []BattingStat
+	Bowling  []BowlingStat
+	Fielding []FieldingStat
 }
 
 type BattingStat struct {
@@ -57,6 +59,15 @@ type BowlingStat struct {
 	NoBalls     uint
 	DotBalls    uint
 	BestBowling string
+}
+
+type FieldingStat struct {
+	Matches         uint
+	Catches         uint
+	CaughtBehind    uint
+	RunOuts         uint
+	Stumpings       uint
+	AssistedRunOuts uint
 }
 
 type ApiResponse struct {
@@ -145,6 +156,9 @@ func GetPlayerStats(playerStatJobs <-chan PlayerProfile, outputProfiles chan<- P
 		}
 		if len(resp.Data.Bowling) > 0 {
 			p.Bowling = resp.Data.Bowling[0]
+		}
+		if len(resp.Data.Fielding) > 0 {
+			p.Fielding = resp.Data.Fielding[0]
 		}
 
 		// log.Printf("GetPlayerStats: Adding ID=%+v\n", p)

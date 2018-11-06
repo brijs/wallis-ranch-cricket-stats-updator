@@ -67,26 +67,6 @@ func saveToken(path string, token *oauth2.Token) {
 }
 
 func PersistBattingStats(profiles []PlayerProfile) {
-	ctx := context.Background()
-
-	b, err := ioutil.ReadFile("google_sheets_credentials.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
-
-	// only scoped to edit files created by WR Cricket client
-	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/drive.file")
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	client := getClient(config)
-
-	srv, err := sheets.New(client)
-	if err != nil {
-		log.Fatalf("Unable to retrieve Sheets client: %v", err)
-	}
-
-	spreadsheetId2 := "1nE9NtBm-95XVp1XptPgLpSsBEyialbcvnJN_2f1PIeg"
 	rangeData := "Batting!A1:Z1000" // 1000 rows
 	values := [][]interface{}{
 		{"Name", "Matches", "Innings", "Runs", "Not Outs", "Highest",
@@ -95,22 +75,39 @@ func PersistBattingStats(profiles []PlayerProfile) {
 		values = append(values, []interface{}{p.Name, p.Batting.Matches, p.Batting.Innings, p.Batting.Runs, p.Batting.NotOuts, p.Batting.Highest,
 			p.Batting.Average, p.Batting.StrikeRate, p.Batting.Fours, p.Batting.Sixes, p.Batting.Ducks, p.Batting.Thirties, p.Batting.Fifties, p.Batting.Hundreds})
 	}
-	rb := &sheets.BatchUpdateValuesRequest{
-		ValueInputOption: "USER_ENTERED",
-	}
-	rb.Data = append(rb.Data, &sheets.ValueRange{
-		Range:  rangeData,
-		Values: values,
-	})
-	_, err = srv.Spreadsheets.Values.BatchUpdate(spreadsheetId2, rb).Context(ctx).Do()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Sheets: Done updating Batting Stats.")
 
+	persistToSheet(rangeData, values)
+	log.Println("Sheets: Done updating Batting Stats.")
 }
 
 func PersistBowlingStats(profiles []PlayerProfile) {
+	rangeData := "Bowling!A1:Z1000" // 1000 rows
+	values := [][]interface{}{
+		{"Name", "Matches", "Innings", "Overs", "Maidens", "Runs",
+			"Wickets", "Economy", "SR", "Avg", "Wides", "NoBalls", "Dots", "Best"}}
+	for _, p := range profiles {
+		values = append(values, []interface{}{p.Name, p.Bowling.Matches, p.Bowling.Innings, p.Bowling.Overs, p.Bowling.Maidens, p.Bowling.Runs,
+			p.Bowling.Wickets, p.Bowling.Economy, p.Bowling.StrikeRate, p.Bowling.Average, p.Bowling.Wides, p.Bowling.NoBalls, p.Bowling.DotBalls, p.Bowling.BestBowling})
+	}
+
+	persistToSheet(rangeData, values)
+	log.Println("Sheets: Done updating Bowling Stats.")
+}
+
+func PersistFieldingStats(profiles []PlayerProfile) {
+	rangeData := "Fielding!A1:Z1000" // 1000 rows
+	values := [][]interface{}{
+		{"Name", "Matches", "Catches", "Ct Behind", "Stumpings", "RunOuts", "AssistedRunOuts"}}
+	for _, p := range profiles {
+		values = append(values, []interface{}{p.Name, p.Fielding.Matches, p.Fielding.Catches, p.Fielding.CaughtBehind, p.Fielding.Stumpings,
+			p.Fielding.RunOuts, p.Fielding.AssistedRunOuts})
+	}
+
+	persistToSheet(rangeData, values)
+	log.Println("Sheets: Done updating Bowling Stats.")
+}
+
+func persistToSheet(rangeData string, values [][]interface{}) {
 	ctx := context.Background()
 
 	b, err := ioutil.ReadFile("google_sheets_credentials.json")
@@ -131,14 +128,6 @@ func PersistBowlingStats(profiles []PlayerProfile) {
 	}
 
 	spreadsheetId2 := "1nE9NtBm-95XVp1XptPgLpSsBEyialbcvnJN_2f1PIeg"
-	rangeData := "Bowling!A1:Z1000" // 1000 rows
-	values := [][]interface{}{
-		{"Name", "Matches", "Innings", "Overs", "Maidens", "Runs",
-			"Wickets", "Economy", "SR", "Avg", "Wides", "NoBalls", "Dots", "Best"}}
-	for _, p := range profiles {
-		values = append(values, []interface{}{p.Name, p.Bowling.Matches, p.Bowling.Innings, p.Bowling.Overs, p.Bowling.Maidens, p.Bowling.Runs,
-			p.Bowling.Wickets, p.Bowling.Economy, p.Bowling.StrikeRate, p.Bowling.Average, p.Bowling.Wides, p.Bowling.NoBalls, p.Bowling.DotBalls, p.Bowling.BestBowling})
-	}
 	rb := &sheets.BatchUpdateValuesRequest{
 		ValueInputOption: "USER_ENTERED",
 	}
@@ -150,6 +139,5 @@ func PersistBowlingStats(profiles []PlayerProfile) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Sheets: Done updating Bowling Stats.")
-
+	return
 }
