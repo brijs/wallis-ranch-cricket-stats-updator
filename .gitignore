@@ -1,0 +1,7 @@
+# binary
+wallis-ranch-cricket-stats-updator
+
+# credentials
+*.json
+wrap_api_key
+
