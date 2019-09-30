@@ -87,6 +87,19 @@ func getWrapAPIKey() string {
 	}
 }
 
+func GetOldPlayerProfiles() []PlayerProfile {
+	var profiles = []PlayerProfile{
+		// Siva's old Profile
+		{
+			ID:       1140896,
+			Name:     "Siva (old)",
+			PhotoURL: "https://media.cricheroes.in/default/user_profile.png",
+		},
+	}
+
+	return profiles
+}
+
 func GetWRPlayers() []PlayerProfile {
 	WRPlayersURL := fmt.Sprintf("https://wrapapi.com/use/brij/tests/WRCricPlayers/latest?wrapAPIKey=%s", getWrapAPIKey())
 	r, err := myClient.Get(WRPlayersURL)
@@ -116,7 +129,7 @@ func GetWRPlayers() []PlayerProfile {
 		log.Fatalf("Got Nil/Empty players %+v", resp)
 	}
 
-	return resp.Data.Players
+	return append(resp.Data.Players, GetOldPlayerProfiles()...)
 
 }
 
