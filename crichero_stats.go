@@ -87,19 +87,6 @@ func getWrapAPIKey() string {
 	}
 }
 
-func GetOldPlayerProfiles() []PlayerProfile {
-	var profiles = []PlayerProfile{
-		// Siva's old Profile
-		{
-			ID:       1140896,
-			Name:     "Siva (old)",
-			PhotoURL: "https://media.cricheroes.in/default/user_profile.png",
-		},
-	}
-
-	return profiles
-}
-
 func GetWRPlayers() []PlayerProfile {
 	WRPlayersURL := fmt.Sprintf("https://wrapapi.com/use/brij/tests/WRCricPlayers/latest?wrapAPIKey=%s", getWrapAPIKey())
 	r, err := myClient.Get(WRPlayersURL)
@@ -172,6 +159,12 @@ func GetPlayerStats(playerStatJobs <-chan PlayerProfile, outputProfiles chan<- P
 		}
 		if len(resp.Data.Fielding) > 0 {
 			p.Fielding = resp.Data.Fielding[0]
+		}
+
+		// special case to merge old stats
+		if p.ID == 1323933 /*Siva*/ {
+			p = MergeOldStatsForSiva(p)
+			log.Printf("GetPlayerStats: MergeOldStatsForSiva ID=%+v\n", p)
 		}
 
 		// log.Printf("GetPlayerStats: Adding ID=%+v\n", p)
