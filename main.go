@@ -3,10 +3,19 @@ package main
 import (
 	"log"
 	"sync"
+	"flag"
 )
 
 func main() {
 	log.Printf("Main: Begin WR Stats update...\n")
+
+	// parse flags
+	var MAX_PLAYERS int
+	flag.IntVar(&MAX_PLAYERS, "max_players", 500, "max number of players to process")
+	flag.Parse()
+
+	// print config
+	log.Printf("Main: MAX_PLAYERS= %d", MAX_PLAYERS)
 
 	playerStatJobs := make(chan PlayerProfile, 1000)
 	outputProfileJobs := make(chan PlayerProfile, 1000)
@@ -21,7 +30,6 @@ func main() {
 	}
 
 	// get list of players
-	const MAX_PLAYERS = 500
 	playerProfiles := GetWRPlayers()
 	i := 0
 	for _, p := range playerProfiles {
